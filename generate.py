@@ -1,16 +1,8 @@
 
-import execjs
 import yaml
-from tools import md5, check, job_filter_id
-
-
-action_path = check('js/actions.js')
-with open(action_path, encoding='utf-8') as f:
-    context = execjs.compile(f.read())
-actions = context.eval('actions')
-base = context.eval('base')
-special = context.eval('special')
-buff = context.eval('changeWithBuff')
+from tools import md5, check
+from tools import actions, base, special, buff
+from tools import job_filter_id
 
 
 def get_path(job, combo, root='templates/'):
@@ -144,7 +136,7 @@ class generator:
         for role, role_tree in tree.items():
             role_folder = folder(role)
             for job, job_tree in role_tree.items():
-                job_folder = folder(job, ftype='job', specs=job_filter_id(job))
+                job_folder = folder(job, ftype='job', specs=job_filter_id[job])
                 for combo, pos in job_tree.items():
                     job_folder.add(trigger(job, combo, pos, is_cross))
                 role_folder.append(job_folder)

@@ -1,3 +1,6 @@
 __pycache__/
 src/
 output.xml
+build/
+dist/
+*.spec

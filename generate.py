@@ -1,5 +1,7 @@
-
+import sys
+import path
 import yaml
+from pathlib import Path
 from tools import md5, check
 from static import actions, base, special, buff, job_filter_id
 
@@ -150,5 +152,15 @@ class generator:
 
 
 if __name__ == '__main__':
-    g = generator('pos.yml')
-    g.dump('output.xml')
+    if len(sys.argv) < 2:
+        yml = 'pos.yml'
+    else:
+        yml = sys.argv[1]
+
+    if not Path(yml).exists():
+        print('无法找到配置文件，确保pos.yml和generate.ext在同一个文件夹下')
+        print('或拖动配置文件到exe图标上打开')
+    else:
+        g = generator(yml)
+        g.dump('output.xml')
+    input('按回车键退出...')

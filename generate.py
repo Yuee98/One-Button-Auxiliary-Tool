@@ -1,5 +1,4 @@
 import sys
-import path
 import yaml
 from pathlib import Path
 from tools import md5, check

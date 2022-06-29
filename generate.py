@@ -39,9 +39,10 @@ class trigger():
         text = ''.join(lines)
 
         settings = {}
-        for k, v in conf['actions'].items():
-            settings[k] = v
-            settings[f'id_{k}'] = md5(self.combo+v)
+        if conf.get('actions', None) is not None:
+            for k, v in conf['actions'].items():
+                settings[k] = v
+                settings[f'id_{k}'] = md5(self.combo+v)
         
         if 'key_levels' in conf:
             for i, v in enumerate(conf['key_levels']):

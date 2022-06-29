@@ -1,8 +1,8 @@
-
+import sys
 import yaml
+from pathlib import Path
 from tools import md5, check
-from tools import actions, base, special, buff
-from tools import job_filter_id
+from static import actions, base, special, buff, job_filter_id
 
 
 def get_path(job, combo, root='templates/'):
@@ -127,13 +127,13 @@ class generator:
     def __init__(self, path) -> None:
         with open(path, encoding='utf-8') as f:
             conf = yaml.safe_load(f)
-        name = conf['mode']
+        mode = conf['mode']
         tree = conf['config']
-        if name == 'Controller':
+        if mode == 'Controller':
             is_cross = True
         else:
             is_cross = False
-        self.root = folder(name, ftype='root')
+        self.root = folder(mode, ftype='root')
         for role, role_tree in tree.items():
             role_folder = folder(role)
             for job, job_tree in role_tree.items():
@@ -152,5 +152,15 @@ class generator:
 
 
 if __name__ == '__main__':
-    g = generator('pos.yml')
-    g.dump('output.xml')
+    if len(sys.argv) < 2:
+        yml = 'pos.yml'
+    else:
+        yml = sys.argv[1]
+
+    if not Path(yml).exists():
+        print('无法找到配置文件，确保pos.yml和generate.ext在同一个文件夹下')
+        print('或拖动配置文件到exe图标上打开')
+    else:
+        g = generator(yml)
+        g.dump('output.xml')
+    input('按回车键退出...')

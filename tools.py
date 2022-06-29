@@ -1,4 +1,3 @@
-import js2py
 import hashlib
 from pathlib import Path
 import urllib.request
@@ -59,38 +58,48 @@ def md5(text:str):
     return hashlib.md5(text.encode()).hexdigest()
 
 
-action_path = check('js/actions.js')
-with open(action_path, encoding='utf-8') as f:
-    context = js2py.EvalJs()
-    context.execute(f.read())
-actions = context.actions.to_dict()
-base = context.base.to_dict()
-special = context.special.to_dict()
-buff = context.changeWithBuff.to_list()
+class js:
+    def __init__(self, path) -> None:
+        self.f = open(path, 'r', encoding='utf-8')
+        self.vars = {}
 
+    def keys(self):
+        return self.vars.keys()
 
-job_filter_id = {
-    '骑士': 262144,
-    '战士': 1048576,
-    '暗黑骑士': 2147483648,
-    '绝枪战士': 68719476736,
+    def __getattr__(self, key):
+        if key in self.vars:
+            return self.vars[key]
+        else:
+            return None
 
-    '白魔法师': 8388608,
-    '学者': 134217728,
-    '占星师': 4294967296,
-    '贤者': 549755813888,
+    def eval(self):
+        var_list = ['actions', 'key_levels', 'key_times', 'variables']
+        for var in var_list:
+            locals()[var] = var
+        for i in range(1, 16):
+            locals()[f'action_{i}'] = f'action_{i}'
+        
+        line = self.f.readline()
+        while line:
+            if line.startswith('const'):
+                name = line.split('=')[0][5:].strip()
+                context = line.split('=')[-1].replace('//', '#')
+                if '[' in context:
+                    end = ']'
+                elif '{' in context:
+                    end = '}'
+                else:
+                    raise ValueError
+                
+                line = self.f.readline().replace('//', '#')
+                while not line.startswith(end):
+                    context += line
+                    line = self.f.readline().replace('//', '#')
+                context += line
 
-    '忍者': 536870912,
-    '武僧': 524288,
-    '武士': 8589934592,
-    '龙骑士': 2097152,
-    '钐镰客': 274877906944,
+                self.vars[name] = eval(context)
+            line = self.f.readline()
+        self.f.close()
+        
+        return self
 
-    '诗人': 4194304,
-    '机工士': 1073741824,
-    '舞者': 137438953472,
-
-    '黑魔法师': 16777216,
-    '召唤师': 67108864,
-    '赤魔法师': 17179869184,
-}
